@@ -1,6 +1,8 @@
 package com.springboot.SecKill.controller;
 
 import com.springboot.SecKill.domain.User;
+import com.springboot.SecKill.redis.RedisService;
+import com.springboot.SecKill.redis.UserKey;
 import com.springboot.SecKill.result.CodeMsg;
 import com.springboot.SecKill.result.Result;
 import com.springboot.SecKill.service.UserService;
@@ -20,6 +22,9 @@ public class SampleController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    RedisService redisService;
 
     @RequestMapping("/thymeleaf")
     public String thymeleafDemo(Model model){
@@ -54,5 +59,24 @@ public class SampleController {
         return Result.success(true);
     }
 
+    @RequestMapping("/redis/get")
+    @ResponseBody
+    public Result<User> redisGet(){
+        //redisService.set(Prefix, "key1", 1111111);
+        User user = redisService.get(UserKey.getById,""+1, User.class);
+        return Result.success(user);
+    }
+
+    @RequestMapping("/redis/set")
+    @ResponseBody
+    public Result<Boolean> redisSet(){
+
+        //redisService.set(Prefix, "key1", 1111111);
+        User user = new User();
+        user.setId(1);
+        user.setName("Marry");
+        redisService.set(UserKey.getById,""+1,user);
+        return Result.success(true);
+    }
 
 }
