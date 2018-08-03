@@ -32,7 +32,7 @@ public class RedisService {
           T t = String2Bean(str, clazz);
           return t;
         }catch (Exception e){
-            logger.error("redis连接池异常"+e.getMessage());
+            logger.error("redis连接池异常get"+e.getMessage());
             return null;
         }finally {
             if (jedis != null){
@@ -62,7 +62,7 @@ public class RedisService {
 
             return true;
         }catch (Exception e){
-            logger.error("redis连接池异常"+e.getMessage());
+            logger.error("redis连接池异常set"+e.getMessage());
             return false;
         }finally {
             if (jedis != null){
