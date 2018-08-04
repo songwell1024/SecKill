@@ -1,6 +1,8 @@
 package com.springboot.SecKill.service;
 
 import com.springboot.SecKill.dao.GoodsDao;
+import com.springboot.SecKill.domain.Goods;
+import com.springboot.SecKill.domain.SecKillGoods;
 import com.springboot.SecKill.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,5 +25,13 @@ public class GoodsService {
 
     public GoodsVo getGoodsVoByGoodsId(long goodsId) {
         return goodsDao.getGoodsVoByGoodsId(goodsId);
+    }
+
+    public void reduceStock(GoodsVo goods) {
+
+        SecKillGoods goods1 = new SecKillGoods();
+        goods1.setGoodsId(goods.getId());
+        goodsDao.reduceStock(goods1);
+
     }
 }

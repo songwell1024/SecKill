@@ -26,6 +26,8 @@ public class CodeMsg {
     //订单模块  5004xx
 
     //秒杀模块  5005xx
+    public static CodeMsg SECKILL_OVER = new CodeMsg(500500,"商品秒杀已经结束");
+    public static CodeMsg SECKILL_REPEATE = new CodeMsg(500500,"不能重复秒杀商品");
 
 
     //有待理解
