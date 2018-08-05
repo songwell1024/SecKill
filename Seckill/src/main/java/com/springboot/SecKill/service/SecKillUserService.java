@@ -32,8 +32,39 @@ public class SecKillUserService {
     RedisService redisService;
 
     public SecKillUser  getUserById(long id){
-       return secKillUserDao.getUserById(id);
+        //取缓存
+        SecKillUser user = redisService.get(SecKillUserKey.getById,""+id, SecKillUser.class);
+        if (user !=null){
+            return user;
+        }
+
+        //缓存中没有从数据库中取出来放入缓存中
+        user = secKillUserDao.getUserById(id);
+        if (user != null){
+            redisService.set(SecKillUserKey.getById,""+id, user);
+        }
+        return user;
     }
+
+    //数据放在缓存中不过期，那有人修改了密码或者用户名怎么办
+    public boolean updatePassword(String token,long id, String formPasswordNew){
+        SecKillUser user = getUserById(id);
+        if (user == null){
+            throw  new GlobalException(CodeMsg.MOBILE_NOT_EXITS);
+        }
+        SecKillUser user2Update = new SecKillUser();
+        user2Update.setId(id);
+        user2Update.setPassword(MD5Util.fromPass2DBPass(formPasswordNew,user.getSalt()));
+        secKillUserDao.update(user2Update);
+
+        //修改缓存
+        redisService.delete(SecKillUserKey.getById,""+id);
+        //更新缓存中的token
+        user.setPassword(user2Update.getPassword());
+        redisService.set(SecKillUserKey.token,token, user);
+        return true;
+    }
+
 
     public SecKillUser getByToken(HttpServletResponse httpServletResponse,String token){
         if (StringUtils.isEmpty(token)){

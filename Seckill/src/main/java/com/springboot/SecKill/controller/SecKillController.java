@@ -40,6 +40,11 @@ public class SecKillController {
     @Autowired
     SecKillService secKillService;
 
+	/**
+	*4核 + 1g
+	*QPS 1306
+	*5000 *10 用户秒杀
+	*/
     //商品列表页
     @RequestMapping("/do_miaosha")
     public String list(Model model, SecKillUser user, @RequestParam("goodsId") long goodsId){

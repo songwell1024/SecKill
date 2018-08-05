@@ -126,6 +126,25 @@ public class RedisService {
         }
     }
 
+    //删除缓存中的值
+    public boolean delete(KeyPrefix prefix, String key){
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            //生成real  key
+            String realKey = prefix.getPrefix() + key;
+            long ret = jedis.del(realKey);
+            return ret >0;
+        }catch (Exception e){
+            logger.error("redis连接池异常"+e.getMessage());
+            return false;
+        }finally {
+            if (jedis != null){
+                jedis.close();
+            }
+        }
+    }
+
     //bean对象准换为String
     private <T> String Bean2String(T value) {
         if (value == null){
