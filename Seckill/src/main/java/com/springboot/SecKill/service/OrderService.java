@@ -4,8 +4,11 @@ import com.springboot.SecKill.dao.OrderDao;
 import com.springboot.SecKill.domain.OrderInfo;
 import com.springboot.SecKill.domain.SecKillOrder;
 import com.springboot.SecKill.domain.SecKillUser;
+import com.springboot.SecKill.redis.OrderKey;
+import com.springboot.SecKill.redis.RedisService;
 import com.springboot.SecKill.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +25,16 @@ public class OrderService {
     @Autowired
     OrderDao orderDao;
 
-    public  SecKillOrder getOrderByUserIdGoodsId(long userId, long goodsId) {
+    @Autowired
+    RedisService redisService;
 
-        return orderDao.getOrderByUserIdGoodsId(userId,goodsId);
+    public  SecKillOrder getOrderByUserIdGoodsId(long userId, long goodsId) {
+        return redisService.get(OrderKey.getSecKillOrderByUidGid,""+userId+"_"+goodsId,SecKillOrder.class);
     }
 
+    public OrderInfo getOrderById(long orderId) {
+        return orderDao.getOrderById(orderId);
+    }
 
     @Transactional
     public OrderInfo createOrder(SecKillUser user, GoodsVo goods) {
@@ -49,6 +57,9 @@ public class OrderService {
         secKillOrder.setUserId(user.getId());
         orderDao.insertSecKillOrder(secKillOrder);
 
+        redisService.set(OrderKey.getSecKillOrderByUidGid,""+user.getId()+"_"+goods.getId(),secKillOrder);
         return orderInfo;
     }
+
+
 }

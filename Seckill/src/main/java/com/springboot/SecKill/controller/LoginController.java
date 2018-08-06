@@ -32,7 +32,7 @@ public class LoginController {
 
     @RequestMapping("/to_login")
     public String tologin(){
-        return "login.html";
+        return "login";
     }
 
     @RequestMapping("/do_login")

@@ -3,9 +3,11 @@ package com.springboot.SecKill.controller;
 import com.springboot.SecKill.domain.SecKillUser;
 import com.springboot.SecKill.redis.GoodsKey;
 import com.springboot.SecKill.redis.RedisService;
+import com.springboot.SecKill.result.Result;
 import com.springboot.SecKill.service.GoodsService;
 import com.springboot.SecKill.service.SecKillUserService;
 import com.springboot.SecKill.util.SpringWebContextUtil;
+import com.springboot.SecKill.vo.GoodsDetailVo;
 import com.springboot.SecKill.vo.GoodsVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,53 +81,86 @@ public class GoodsController {
         return html;
     }
 
+//    //商品详情页
+//    @RequestMapping(value = "/to_detail2/{goodsId}", produces = "text/html")
+//    @ResponseBody
+//    public String detail2(HttpServletRequest request, HttpServletResponse response,Model model, SecKillUser user, @PathVariable("goodsId") long goodsId){
+//        model.addAttribute("user",user);
+//
+//        //取缓存
+//        String html = redisService.get(GoodsKey.getGoodsDetail,""+goodsId,String.class);
+//        if (!StringUtils.isEmpty(html)){
+//            return html;
+//        }
+//        //手动渲染
+//
+//       GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
+//       model.addAttribute("goods",goods);
+//
+//       //秒杀的详细信息
+//        long startAt = goods.getStartDate().getTime();
+//        long endAt = goods.getEndDate().getTime();
+//        long now = System.currentTimeMillis(); //当前的时间
+//
+//        int SecKillStatus = 0;
+//        int remainSeconds = 0;
+//        if (now < startAt){  //秒杀未开始
+//            SecKillStatus = 0;
+//            remainSeconds = (int)((startAt - now)/1000);
+//        }else if (now > endAt){  //秒杀结束
+//            SecKillStatus = 2;
+//            remainSeconds = -1;
+//        }else {
+//            SecKillStatus = 1;
+//            remainSeconds = 0;
+//        }
+//
+//        model.addAttribute("miaoshaStatus",SecKillStatus);
+//        model.addAttribute("remainSeconds",remainSeconds);
+//
+//
+//        //缓存中没有数据的时候手动渲染
+//        SpringWebContextUtil ctx  = new SpringWebContextUtil(request, response, request.getServletContext(),
+//                                                             request.getLocale(),model.asMap(),applicationContext);
+//        html = thymeleafViewResolver.getTemplateEngine().process("goods_detail.html",ctx);
+//
+//        if(!StringUtils.isEmpty(html)){
+//            redisService.set(GoodsKey.getGoodsDetail,""+goodsId ,html);
+//        }
+//
+//        return html;
+//}
+
     //商品详情页
-    @RequestMapping(value = "/to_detail/{goodsId}", produces = "text/html")
+    @RequestMapping(value="/detail/{goodsId}")
     @ResponseBody
-    public String detail(HttpServletRequest request, HttpServletResponse response,Model model, SecKillUser user, @PathVariable("goodsId") long goodsId){
-        model.addAttribute("user",user);
+    public Result<GoodsDetailVo> detail(HttpServletRequest request, HttpServletResponse response, Model model, SecKillUser user, @PathVariable("goodsId") long goodsId){
+        GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
 
-        //取缓存
-        String html = redisService.get(GoodsKey.getGoodsDetail,""+goodsId,String.class);
-        if (!StringUtils.isEmpty(html)){
-            return html;
-        }
-        //手动渲染
-
-       GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
-       model.addAttribute("goods",goods);
-
-       //秒杀的详细信息
+        //秒杀的详细信息
         long startAt = goods.getStartDate().getTime();
         long endAt = goods.getEndDate().getTime();
         long now = System.currentTimeMillis(); //当前的时间
 
-        int SecKillStatus = 0;
+        int secKillStatus = 0;
         int remainSeconds = 0;
         if (now < startAt){  //秒杀未开始
-            SecKillStatus = 0;
+            secKillStatus = 0;
             remainSeconds = (int)((startAt - now)/1000);
         }else if (now > endAt){  //秒杀结束
-            SecKillStatus = 2;
+            secKillStatus = 2;
             remainSeconds = -1;
         }else {
-            SecKillStatus = 1;
+            secKillStatus = 1;
             remainSeconds = 0;
         }
 
-        model.addAttribute("miaoshaStatus",SecKillStatus);
-        model.addAttribute("remainSeconds",remainSeconds);
+        GoodsDetailVo vo = new GoodsDetailVo();
+        vo.setRemainSeconds(remainSeconds);
+        vo.setSecKillStatus(secKillStatus);
+        vo.setGoods(goods);
+        vo.setUser(user);
+        return Result.success(vo);
 
-
-        //缓存中没有数据的时候手动渲染
-        SpringWebContextUtil ctx  = new SpringWebContextUtil(request, response, request.getServletContext(),
-                                                             request.getLocale(),model.asMap(),applicationContext);
-        html = thymeleafViewResolver.getTemplateEngine().process("goods_detail.html",ctx);
-
-        if(!StringUtils.isEmpty(html)){
-            redisService.set(GoodsKey.getGoodsDetail,""+goodsId ,html);
-        }
-
-        return html;
-}
+    }
 }

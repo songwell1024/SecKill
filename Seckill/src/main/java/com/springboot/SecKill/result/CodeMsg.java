@@ -14,7 +14,7 @@ public class CodeMsg {
     public static CodeMsg BIND_ERROR = new CodeMsg(500101,"参数校验异常:%s");
 
     //登陆模块 5002xx
-    private static CodeMsg SESSION_ERROR = new CodeMsg(500210,"Session 不存在或者已经失效");
+    public static CodeMsg SESSION_ERROR = new CodeMsg(500210,"Session 不存在或者已经失效");
     public static CodeMsg PASSWORD_EMPTY = new CodeMsg(500211,"登陆密码不能为空");
     public static CodeMsg MOBILE_EMPTY = new CodeMsg(500212,"手机号不能为空");
     public static CodeMsg MOBILE_ERROR = new CodeMsg(500213,"手机号格式错误，请输入正确的手机号");
@@ -24,6 +24,8 @@ public class CodeMsg {
     //商品模块 5003xx
 
     //订单模块  5004xx
+    public static CodeMsg ORDER_NOT_EXIST = new CodeMsg(500400,"订单为空");
+
 
     //秒杀模块  5005xx
     public static CodeMsg SECKILL_OVER = new CodeMsg(500500,"商品秒杀已经结束");
