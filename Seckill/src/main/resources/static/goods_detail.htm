@@ -64,6 +64,42 @@
 </body>
 <script>
 
+function getMiaoShaResult(goodsId) {
+    g_showLoading();
+    $.ajax({
+        url:"/miaosha/result",
+        type:"GET",
+        data:{
+            goodsId:$("#goodsId").val(),
+        },
+        success:function (data) {
+            if(data.code == 0){
+                var result = data.data;
+                if(result < 0){
+                    layer.msg("秒杀失败")
+                }else if (result == 0){ //继续轮询
+                    setTimeout(function() {
+                        getMiaoShaResult(goodsId)
+                    },50);
+                }else {
+                    layer.confirm("秒杀成功！查看订单？",{btn:["确定","取消"]},
+                    function() {
+                        window.location.href="/order_detail.htm?orderId="+result;
+                    },
+                    function() {
+                        layer.closeAll();
+                    });
+                }
+            }else {
+                layer.msg(data.msg);
+            }
+        },
+        error:function() {
+            layer.msg("客户端请求错误");
+        }
+    });
+}    
+    
 function doMiaosha(){
 	$.ajax({
 		url:"/miaosha/do_miaosha",
@@ -73,7 +109,8 @@ function doMiaosha(){
 		},
 		success:function(data){
 			if(data.code == 0){
-				window.location.href="/order_detail.htm?orderId="+data.data.id;
+				// window.location.href="/order_detail.htm?orderId="+data.data.id;
+                getMiaoShaResult($("#goodsId").val());
 			}else{
 				layer.msg(data.msg);
 			}

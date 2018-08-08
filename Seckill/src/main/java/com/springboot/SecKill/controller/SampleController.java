@@ -1,82 +1,49 @@
-package com.springboot.SecKill.controller;
-
-import com.springboot.SecKill.domain.User;
-import com.springboot.SecKill.redis.RedisService;
-import com.springboot.SecKill.redis.UserKey;
-import com.springboot.SecKill.result.CodeMsg;
-import com.springboot.SecKill.result.Result;
-import com.springboot.SecKill.service.UserService;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-/**
- * @author WilsonSong
- * @date 2018/7/26/026
- */
-@Controller
-public class SampleController {
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    RedisService redisService;
-
-    @RequestMapping("/thymeleaf")
-    public String thymeleafDemo(Model model){
-        model.addAttribute("name", "Wilson");
-
-        return "hello";
-    }
-
-    @RequestMapping("/hello")
-    @ResponseBody
-    public Result<String> hello(){
-        return Result.success("hello Wilson");
-    }
-
-    @RequestMapping("/helloError")
-    @ResponseBody
-    public Result<String> error(){
-        return Result.error(CodeMsg.SERVER_ERROR);
-    }
-
-    @RequestMapping("/db/get")
-    @ResponseBody
-    public Result<User> dbGet(){
-        User user = userService.getById(1);
-        return Result.success(user);
-    }
-
-    @RequestMapping("/db/tx")
-    @ResponseBody
-    public Result<Boolean> dbTx(){
-        userService.tx();
-        return Result.success(true);
-    }
-
-    @RequestMapping("/redis/get")
-    @ResponseBody
-    public Result<User> redisGet(){
-        //redisService.set(Prefix, "key1", 1111111);
-        User user = redisService.get(UserKey.getById,""+1, User.class);
-        return Result.success(user);
-    }
-
-    @RequestMapping("/redis/set")
-    @ResponseBody
-    public Result<Boolean> redisSet(){
-
-        //redisService.set(Prefix, "key1", 1111111);
-        User user = new User();
-        user.setId(1);
-        user.setName("Marry");
-        redisService.set(UserKey.getById,""+1,user);
-        return Result.success(true);
-    }
-
-}
+//package com.springboot.SecKill.controller;
+//
+//import com.springboot.SecKill.rabbitmq.MQSender;
+//import com.springboot.SecKill.result.Result;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.stereotype.Controller;
+//import org.springframework.web.bind.annotation.RequestMapping;
+//import org.springframework.web.bind.annotation.ResponseBody;
+//
+///**
+// * @author WilsonSong
+// * @date 2018/8/8/008
+// */
+//@Controller
+//public class SampleController {
+//
+//
+//    @Autowired
+//    MQSender sender;
+//
+//
+//    @RequestMapping("/rabbitmq")
+//    @ResponseBody
+//    public Result<String> rabbitmq(){
+//        sender.send("yeah success");
+//        return Result.success("哟哟哟");
+//    }
+//
+//    @RequestMapping("/rabbitmq/topic")
+//    @ResponseBody
+//    public Result<String> topic(){
+//        sender.sendTopic("yeah success");
+//        return Result.success("哟哟哟");
+//    }
+//
+//    @RequestMapping("/rabbitmq/fanout")
+//    @ResponseBody
+//    public Result<String> fanout(){
+//        sender.sendFanout("yeah success");
+//        return Result.success("哟哟哟");
+//    }
+//
+//    @RequestMapping("/rabbitmq/header")
+//    @ResponseBody
+//    public Result<String> header(){
+//        sender.sendHeaders("yeah success");
+//        return Result.success("哟哟哟");
+//    }
+//}

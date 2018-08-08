@@ -146,7 +146,7 @@ public class RedisService {
     }
 
     //bean对象准换为String
-    private <T> String Bean2String(T value) {
+    public static  <T> String Bean2String(T value) {
         if (value == null){
             return null;
         }
@@ -164,7 +164,7 @@ public class RedisService {
     }
 
     //String转换为bean
-    private <T> T String2Bean(String str, Class<T> clazz) {
+    public static  <T> T String2Bean(String str, Class<T> clazz) {
         if (str == null || str.length() <0 || clazz == null){
             return null;
         }
