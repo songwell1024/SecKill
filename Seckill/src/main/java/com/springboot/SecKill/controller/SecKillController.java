@@ -1,30 +1,38 @@
 package com.springboot.SecKill.controller;
 
+import com.springboot.SecKill.access.AccessLimit;
 import com.springboot.SecKill.domain.OrderInfo;
 import com.springboot.SecKill.domain.SecKillOrder;
 import com.springboot.SecKill.domain.SecKillUser;
 import com.springboot.SecKill.rabbitmq.MQSender;
 import com.springboot.SecKill.rabbitmq.SecKillMessage;
+import com.springboot.SecKill.redis.AccessKey;
 import com.springboot.SecKill.redis.GoodsKey;
 import com.springboot.SecKill.redis.RedisService;
+import com.springboot.SecKill.redis.SecKillKey;
 import com.springboot.SecKill.result.CodeMsg;
 import com.springboot.SecKill.result.Result;
 import com.springboot.SecKill.service.GoodsService;
 import com.springboot.SecKill.service.OrderService;
 import com.springboot.SecKill.service.SecKillService;
 import com.springboot.SecKill.service.SecKillUserService;
+import com.springboot.SecKill.util.MD5Util;
+import com.springboot.SecKill.util.UUIDUtil;
 import com.springboot.SecKill.vo.GoodsVo;
+import com.sun.deploy.net.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,14 +86,19 @@ public class SecKillController implements InitializingBean{
 	*5000 *10 用户秒杀
 	*/
     //商品列表页
-    @RequestMapping(value = "/do_miaosha",method = RequestMethod.POST)
+    @RequestMapping(value = "/{path}/do_miaosha",method = RequestMethod.POST)
     @ResponseBody
-    public Result<Integer> miaosha(Model model, SecKillUser user, @RequestParam("goodsId") long goodsId){
+    public Result<Integer> miaosha(Model model, SecKillUser user, @RequestParam("goodsId") long goodsId, @PathVariable("path") String path){
         model.addAttribute("user",user);
         if (user == null){
             return Result.error(CodeMsg.SESSION_ERROR);
         }
 
+        //验证path
+        boolean check = secKillService.checkPath(user,goodsId,path);
+        if (!check){
+            return Result.error(CodeMsg.REQUEST_ILLEGAL);
+        }
         //内存标记，减少redis访问
         boolean over = localOverMap.get(goodsId);
         if(over){
@@ -153,6 +166,59 @@ public class SecKillController implements InitializingBean{
         }
         long result = secKillService.getSecKillResult(user.getId(),goodsId);
         return Result.success(result);
+    }
+
+
+    /**
+     * 秒杀的验证码校验接口
+     * @param user
+     * @param goodsId
+     * @param verifyCode
+     * @return
+     */
+    @AccessLimit(seconds = 5,maxCount = 5, needLogin = true)
+    @RequestMapping(value = "/path",method = RequestMethod.GET)
+    @ResponseBody
+    public Result<String> getMiaoshaPath(HttpServletRequest request, SecKillUser user,
+                                         @RequestParam("goodsId") long goodsId,
+                                         @RequestParam(value = "verifyCode", defaultValue = "0") int verifyCode){
+        if (user == null){
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
+
+        //验证码的校验
+        boolean check = secKillService.checkVerifyCode(user,goodsId,verifyCode);
+        if (!check){
+            return Result.error(CodeMsg.REQUEST_ILLEGAL);
+        }
+        String path = secKillService.createSecKillPath(user,goodsId);
+        return Result.success(path);
+    }
+
+    /**
+     * 获取验证码
+     * @param response
+     * @param user
+     * @param goodsId
+     * @return
+     */
+    @RequestMapping(value = "/verifyCode",method = RequestMethod.GET)
+    @ResponseBody
+    public Result<String> getMiaoshaVerifyCode(HttpServletResponse response, SecKillUser user, @RequestParam("goodsId") long goodsId){
+        if (user == null){
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
+        BufferedImage  image = secKillService.createSecKillVerifyCode(user,goodsId);
+        try{
+            OutputStream out = response.getOutputStream();  //输出流
+            ImageIO.write(image,"JPEG",out);  //图片写入输出流
+            out.flush();
+            out.close();
+            return null;
+        }catch (Exception e){
+            e.printStackTrace();
+            return Result.error(CodeMsg.SECKILL_FAILED);
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.springboot.SecKill.config;
 
+import com.springboot.SecKill.access.UserContext;
 import com.springboot.SecKill.domain.SecKillUser;
 import com.springboot.SecKill.service.SecKillUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,29 +39,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
                                   NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
         HttpServletRequest request = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
         HttpServletResponse response = nativeWebRequest.getNativeResponse(HttpServletResponse.class);
-
-        String paramToken = request.getParameter(SecKillUserService.COOKIE_NAME_TOKEN);
-        String cookieToken = getCookieValue(request,SecKillUserService.COOKIE_NAME_TOKEN);
-
-        if (StringUtils.isEmpty(cookieToken) && StringUtils.isEmpty(paramToken)){
-            return "redirect:/login.html";
-        }
-        String token = StringUtils.isEmpty(paramToken)?cookieToken:paramToken;
-        return secKillUserService.getByToken(response,token);
-
+        return UserContext.getUser();
     }
 
-    private String getCookieValue(HttpServletRequest request,String cookieName){
-        Cookie[] cookies = request.getCookies();
-
-        if(cookies == null || cookies.length <= 0){
-            return null;
-        }
-        for (Cookie cookie : cookies){
-            if (cookie.getName().equals(cookieName)){
-                return cookie.getValue();
-            }
-        }
-        return null;
-    }
 }

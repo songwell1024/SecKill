@@ -1,8 +1,10 @@
 package com.springboot.SecKill.config;
 
+import com.springboot.SecKill.access.AccessInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -19,9 +21,15 @@ public class webConfig implements WebMvcConfigurer {
     @Autowired
     UserArgumentResolver argumentResolver;
 
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+    @Autowired
+    AccessInterceptor accessInterceptor;
 
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(argumentResolver);
+    }
+
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(accessInterceptor);
     }
 
 }
