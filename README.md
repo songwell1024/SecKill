@@ -20,4 +20,11 @@
 1. 秒杀地址隐藏
 2. 数学公式验证码缓冲
 3. 接口的防刷限流<br>
+### 具体技术的实现
+1. SpringBoot学习之高并发接口优化—–秒杀接口地址隐藏(验证码)+接口限流防刷[](https://songwell1024.github.io/2018/08/09/SecurityOptimise/)<br>
+2. 使用RabbitMQ改写秒杀功能[](https://songwell1024.github.io/2018/08/08/APIIOptimise/)<br>
+3. SpringBoot2之秒杀页面优化及解决超卖问题[](https://songwell1024.github.io/2018/08/05/SecKillPageOptimise/)<br>
+4. SpringBoot使用JSR303参数校验并进行全局异常处理[](https://songwell1024.github.io/2018/08/02/JSR303/)<br>
+5. SpringBoot2.0集成Redis详解及踩过的坑（Could not get a resource from the pool）[](https://songwell1024.github.io/2018/08/02/Redis/)<br>
+6. SpringBoot2踩坑之SpringWebContext方法过时[](https://songwell1024.github.io/2018/08/05/SpringWebContext/)<br>
 具体的技术详情可以访问我的博客[](https://songwell1024.github.io)
